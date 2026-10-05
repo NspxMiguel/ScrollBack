@@ -13,6 +13,15 @@ enum Log {
         append("[error] \(message)")
     }
 
+    private static var reported = Set<String>()
+
+    /// Same as `error`, but each message is written once per launch. Used on
+    /// paths the permission retry hits every two seconds.
+    static func errorOnce(_ message: String) {
+        guard reported.insert(message).inserted else { return }
+        error(message)
+    }
+
     private static func append(_ line: String) {
         let stamped = "\(ISO8601DateFormatter().string(from: Date())) \(line)\n"
         FileHandle.standardError.write(Data(stamped.utf8))

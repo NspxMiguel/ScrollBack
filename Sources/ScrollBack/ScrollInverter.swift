@@ -35,7 +35,7 @@ final class ScrollInverter {
                 userInfo: context
             )
         else {
-            Log.error("scroll: failed to create event tap — is Accessibility granted?")
+            Log.errorOnce("scroll: failed to create event tap — is Accessibility granted?")
             return
         }
 
@@ -45,6 +45,8 @@ final class ScrollInverter {
         CFRunLoopAddSource(CFRunLoopGetMain(), source, .commonModes)
         CGEvent.tapEnable(tap: tap, enable: true)
     }
+
+    var isRunning: Bool { eventTap != nil }
 
     func stop() {
         guard let tap = eventTap else { return }

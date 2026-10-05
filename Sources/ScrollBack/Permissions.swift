@@ -1,5 +1,6 @@
 import ApplicationServices
 import Foundation
+import IOKit.hid
 
 enum Permissions {
     static var isAccessibilityTrusted: Bool {
@@ -14,5 +15,14 @@ enum Permissions {
         let key = kAXTrustedCheckOptionPrompt.takeUnretainedValue() as NSString
         let options = [key: true] as CFDictionary
         return AXIsProcessTrustedWithOptions(options)
+    }
+
+    /// Reading the mouse's raw HID reports (for the side buttons) needs Input
+    /// Monitoring, a separate switch from Accessibility. This asks for it once;
+    /// macOS only shows the prompt the first time.
+    static func requestInputMonitoring() {
+        if IOHIDCheckAccess(kIOHIDRequestTypeListenEvent) != kIOHIDAccessTypeGranted {
+            IOHIDRequestAccess(kIOHIDRequestTypeListenEvent)
+        }
     }
 }

@@ -26,6 +26,9 @@ final class SideButtonReviver {
         startVerifyTap()
     }
 
+    /// True once both the raw HID monitor and the verify tap are live.
+    var isRunning: Bool { hidManager != nil && verifyTap != nil }
+
     func stop() {
         stopHIDMonitor()
         stopVerifyTap()
@@ -61,7 +64,11 @@ final class SideButtonReviver {
         IOHIDManagerScheduleWithRunLoop(manager, CFRunLoopGetMain(), CFRunLoopMode.commonModes.rawValue)
         let result = IOHIDManagerOpen(manager, IOOptionBits(kIOHIDOptionsTypeNone))
         if result != kIOReturnSuccess {
-            Log.error("side buttons: IOHIDManagerOpen failed (\(result))")
+            // Usually Input Monitoring not granted yet. Drop the manager so the
+            // next start() retries instead of keeping a dead one forever.
+            Log.errorOnce("side buttons: IOHIDManagerOpen failed (\(result))")
+            IOHIDManagerUnscheduleFromRunLoop(manager, CFRunLoopGetMain(), CFRunLoopMode.commonModes.rawValue)
+            return
         }
         hidManager = manager
     }
@@ -141,7 +148,7 @@ final class SideButtonReviver {
                 userInfo: context
             )
         else {
-            Log.error("side buttons: failed to create verification tap")
+            Log.errorOnce("side buttons: failed to create verification tap")
             return
         }
 

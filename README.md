@@ -44,9 +44,14 @@ brew install --cask nspxmiguel/tap/scrollback
 The cask compiles ScrollBack on your own machine (no signed binary is
 distributed), which is why the first install takes about a minute.
 
-On first launch, ScrollBack asks for **Accessibility** permission — without
-it, it can see nothing and does nothing. Grant it once in System Settings →
-Privacy & Security → Accessibility.
+On first launch, ScrollBack asks for two permissions in System Settings →
+Privacy & Security:
+
+- **Accessibility** — to reverse the wheel. Without it, scrolling is untouched.
+- **Input Monitoring** — to see the side buttons. Without it, they stay dead.
+
+There is no need to relaunch after granting them: the app checks every two
+seconds and starts on its own.
 
 ## Menu
 
